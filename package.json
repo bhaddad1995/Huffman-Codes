@@ -1,0 +1,6 @@
+{
+    "scripts": {
+        "build": "javac huffmanCodes.java",
+        "start": "java huffmanCodes"
+    }
+}

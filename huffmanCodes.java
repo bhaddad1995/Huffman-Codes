@@ -6,14 +6,23 @@ import java.io.ObjectInputStream;
 
 import java.io.*;
 import java.util.Scanner;
+import java.util.*;
 
 class huffmanCodes{
 
     public String input = "";
+    HashMap<Character, Integer> characterCountMap = new HashMap<Character, Integer>();
+    HashMap<Character, Double> characterPercentageMap = new HashMap<Character, Double>();
+
     public static void main(String[] args){
         huffmanCodes huffCodes = new huffmanCodes();
         huffCodes.loadFile();
         huffCodes.printInput();
+        huffCodes.populateCharacterCountMap();
+        huffCodes.printCharacterCountMap();
+        huffCodes.calculateFrequencyPercentages();
+        huffCodes.printCharacterPercentMap();
+        huffCodes.sortFrequencyPercentages();
     }
 
 
@@ -51,6 +60,47 @@ class huffmanCodes{
 
     public void printInput(){
         System.out.println(input);
+    }
+
+    public void printCharacterCountMap(){
+        System.out.println(characterCountMap);
+    }
+
+    public void printCharacterPercentMap(){
+        System.out.println(characterPercentageMap);
+    }
+
+    public void populateCharacterCountMap(){
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+            Integer val = characterCountMap.get(c);
+            if (val != null) {
+                characterCountMap.put(c, val + 1);
+            }
+            else {
+               characterCountMap.put(c, 1);
+           }
+        }
+    }
+
+    public void calculateFrequencyPercentages(){
+        Integer totalCharCount = input.length();
+        for ( Character key : characterCountMap.keySet() ) {
+            Double percent = (characterCountMap.get(key).doubleValue() / totalCharCount.doubleValue()) * 100;
+            characterPercentageMap.put(key, percent);
+        }
+    }
+
+    public void sortFrequencyPercentages(){
+        Map<Character, Double> treeMap = new TreeMap<Character, Double>(characterPercentageMap);
+        printMap(treeMap);
+    }
+
+    public static <K, V> void printMap(Map<K, V> map) {
+        for (Map.Entry<K, V> entry : map.entrySet()) {
+            System.out.println("Key : " + entry.getKey() 
+				+ " Value : " + entry.getValue());
+        }
     }
 
     public boolean charIsLetter(char a){

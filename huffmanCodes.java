@@ -13,6 +13,7 @@ class huffmanCodes{
     public String input = "";
     HashMap<Character, Integer> characterCountMap = new HashMap<Character, Integer>();
     HashMap<Character, Double> characterPercentageMap = new HashMap<Character, Double>();
+    Map<Character, Double> treeMap;
 
     public static void main(String[] args){
         huffmanCodes huffCodes = new huffmanCodes();
@@ -23,6 +24,7 @@ class huffmanCodes{
         huffCodes.calculateFrequencyPercentages();
         huffCodes.printCharacterPercentMap();
         huffCodes.sortFrequencyPercentages();
+        huffCodes.writeOutputFile();
     }
 
 
@@ -92,15 +94,38 @@ class huffmanCodes{
     }
 
     public void sortFrequencyPercentages(){
-        Map<Character, Double> treeMap = new TreeMap<Character, Double>(characterPercentageMap);
-        printMap(treeMap);
+        treeMap = new TreeMap<Character, Double>(characterPercentageMap);
+        printMap();
     }
 
-    public static <K, V> void printMap(Map<K, V> map) {
-        for (Map.Entry<K, V> entry : map.entrySet()) {
+    public void writeOutputFile(){
+        try{
+            FileWriter fileOut = new FileWriter("outfile.dat");
+            BufferedWriter out = new BufferedWriter(fileOut);
+            out.write("Symbol|Frequency\n");
+            out.write(getTreeMapString());
+            out.close();
+        }catch(IOException i){
+            System.out.println("IO Exception: "+i);
+        }
+    }
+
+    public void printMap() {
+        Map<Character, Double> map = treeMap;
+        for (Map.Entry<Character, Double> entry : map.entrySet()) {
             System.out.println("Key : " + entry.getKey() 
 				+ " Value : " + entry.getValue());
         }
+    }
+
+    public String getTreeMapString() {
+        Map<Character, Double> map = treeMap;
+        String  s = "";
+        for (Map.Entry<Character, Double> entry : map.entrySet()) {
+            s = s + "   "+ entry.getKey() 
+				+ ",  " + entry.getValue() + "%\n";
+        }
+        return s;
     }
 
     public boolean charIsLetter(char a){

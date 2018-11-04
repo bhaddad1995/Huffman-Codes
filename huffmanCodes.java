@@ -110,6 +110,7 @@ class forestNode{
 
 class forest{
     public Vector<forestNode> forestElements = new Vector<forestNode>();
+    String huffCode = "";
 
     public void insert(forestNode element){
 
@@ -155,20 +156,24 @@ class forest{
         
         // if node is leaf node, print its data     
         if (root.getLeftChild() == null && root.getRightChild() == null){ 
-            System.out.println("Leaf node " + root.getLetter() + " with weight of " + root.getValue());  
+            System.out.println("Leaf node " + root.getLetter() + " with weight of " + root.getValue() + "and huff code " + huffCode);  
             return; 
         } 
     
         // if left child exists, check for leaf  
         // recursively 
         if (root.getLeftChild() != null){
+            huffCode = huffCode + "0";
             printLeafNodes(root.getLeftChild());
+            huffCode = huffCode.substring(0,huffCode.length()-1);
         }
             
         // if right child exists, check for leaf  
         // recursively 
         if (root.getRightChild() != null){ 
-            printLeafNodes(root.getRightChild()); 
+            huffCode = huffCode + "1";
+            printLeafNodes(root.getRightChild());
+            huffCode = huffCode.substring(0,huffCode.length()-1); 
         }
     }  
 
@@ -226,7 +231,7 @@ class huffmanCodes{
     public String formatInput(String s){
         String formattedInput = "";
         for(int i = 0; i < s.length(); i++){
-            if(charIsLetter(s.charAt(i))){
+            if(charIsLetter(s.charAt(i)) || charIsNumber(s.charAt(i))){
                 formattedInput = formattedInput + s.charAt(i);
             }else{
                 continue;
@@ -309,6 +314,15 @@ class huffmanCodes{
     public boolean charIsLetter(char a){
         int x = (int) a;
         if(a >= 65 && a <= 122){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public boolean charIsNumber(char a){
+        int x = (int) a;
+        if(a >= 48 && a <= 57){
             return true;
         }else{
             return false;

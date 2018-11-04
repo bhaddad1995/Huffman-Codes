@@ -8,12 +8,186 @@ import java.io.*;
 import java.util.Scanner;
 import java.util.*;
 
+class treeNode{
+    private treeNode leftChild;
+    private treeNode rightChild;
+    private treeNode parent;
+    private double value;
+    private char letter;
+
+    treeNode(){
+        setLeftChild(null);
+        setRightChild(null);
+        setParent(null);
+    }
+
+    treeNode(treeNode left, treeNode right, double value){
+        setLeftChild(left);
+        setRightChild(right);
+        setValue(value);
+        setLetter('\u0000');
+        setParent(null);
+    }
+
+    treeNode(treeNode left, treeNode right, double value, char letter){
+        setLeftChild(left);
+        setRightChild(right);
+        setValue(value);
+        setLetter(letter);
+        setParent(null);
+    }
+
+    public void setValue(double val){
+        this.value = val;
+    }
+
+    public double getValue(){
+        return this.value;
+    }
+
+    public void setLetter(char letter){
+        this.letter = letter;
+    }
+
+    public char getLetter(){
+        return this.letter;
+    }
+
+    public void setLeftChild(treeNode left){
+        this.leftChild = left;
+    }
+
+    public treeNode getLeftChild(){
+        return this.leftChild;
+    }
+
+    public void setRightChild(treeNode right){
+        this.rightChild = right;
+    }
+
+    public treeNode getRightChild(){
+        return this.rightChild;
+    }
+
+    public void setParent(treeNode parent){
+        this.parent = parent;
+    }
+
+    public treeNode getParent(){
+        return this.parent;
+    }
+}
+
+class forestNode{
+    private double weight;
+    private treeNode root;
+
+    forestNode(){
+
+    }
+
+    forestNode(double weight, treeNode root){
+        setWeight(weight);
+        setRoot(root);
+    }
+
+    public double getWeight(){
+        return this.weight;
+    }
+
+    public void setWeight(double weight){
+        this.weight = weight;
+    }
+
+    public treeNode getRoot(){
+        return this.root;
+    }
+
+    public void setRoot(treeNode root){
+        this.root = root;
+    }
+}
+
+class forest{
+    public Vector<forestNode> forestElements = new Vector<forestNode>();
+
+    public void insert(forestNode element){
+
+        forestElements.add(element);
+
+    }
+
+    public forestNode returnMin(){
+        int length = forestElements.size();
+        forestNode currentMin = new forestNode();
+        double currentMinWeight = Double.MAX_VALUE;
+        int currentMinIndex = -1;
+        for(int i = 0; i < length; i++){
+            if(forestElements.get(i).getWeight() < currentMinWeight){
+                currentMin = forestElements.get(i);
+                currentMinWeight = forestElements.get(i).getWeight();
+                currentMinIndex = i;
+            }
+        }
+        if(currentMinIndex >= 0){
+            remove(currentMinIndex);
+        }
+
+        System.out.println("Min found: Element " + currentMin.getRoot().getLetter() + " with weight of " + currentMin.getWeight());
+
+        return currentMin;
+    }
+
+    public void remove(int index){
+        forestElements.remove(index);
+    }
+
+    public int getSize(){
+        return forestElements.size();
+    }
+
+    public void printLeafNodes(treeNode root) 
+    { 
+        // if node is null, return 
+        if (root == null){ 
+            return;
+        }
+        
+        // if node is leaf node, print its data     
+        if (root.getLeftChild() == null && root.getRightChild() == null){ 
+            System.out.println("Leaf node " + root.getLetter() + " with weight of " + root.getValue());  
+            return; 
+        } 
+    
+        // if left child exists, check for leaf  
+        // recursively 
+        if (root.getLeftChild() != null){
+            printLeafNodes(root.getLeftChild());
+        }
+            
+        // if right child exists, check for leaf  
+        // recursively 
+        if (root.getRightChild() != null){ 
+            printLeafNodes(root.getRightChild()); 
+        }
+    }  
+
+    public void printElements(){
+        int s = forestElements.size();
+        for(int i = 0; i < s; i++){
+            System.out.println("Forest Node element " + forestElements.get(i).getRoot().getLetter() +" with weight" + forestElements.get(i).getWeight());
+        }
+    }
+}
+
 class huffmanCodes{
 
     public String input = "";
-    HashMap<Character, Integer> characterCountMap = new HashMap<Character, Integer>();
-    HashMap<Character, Double> characterPercentageMap = new HashMap<Character, Double>();
-    Map<Character, Double> treeMap;
+    public HashMap<Character, Integer> characterCountMap = new HashMap<Character, Integer>();
+    public HashMap<Character, Double> characterPercentageMap = new HashMap<Character, Double>();
+    public Map<Character, Double> treeMap;
+    public HashMap<Character,String> huffmanCodeMap = new HashMap<Character,String>();
+    public forest myForest = new forest();
 
     public static void main(String[] args){
         huffmanCodes huffCodes = new huffmanCodes();
@@ -25,6 +199,7 @@ class huffmanCodes{
         huffCodes.printCharacterPercentMap();
         huffCodes.sortFrequencyPercentages();
         huffCodes.writeOutputFile();
+        huffCodes.generateHuffmanCodes();
     }
 
 
@@ -90,6 +265,9 @@ class huffmanCodes{
         for ( Character key : characterCountMap.keySet() ) {
             Double percent = (characterCountMap.get(key).doubleValue() / totalCharCount.doubleValue()) * 100;
             characterPercentageMap.put(key, percent);
+            treeNode newTreeNode = new treeNode(null,null,percent,key);
+            forestNode newForestNode= new forestNode(percent, newTreeNode);
+            myForest.insert(newForestNode);
         }
     }
 
@@ -135,6 +313,21 @@ class huffmanCodes{
         }else{
             return false;
         }
+    }
+
+    public void generateHuffmanCodes(){
+        myForest.printElements();
+        while(myForest.getSize() > 1){
+            forestNode min1 = myForest.returnMin();
+            forestNode min2 = myForest.returnMin();
+            double parentWeight = min1.getWeight() + min2.getWeight();
+            treeNode parentTreeNode = new treeNode(min1.getRoot(), min2.getRoot(), parentWeight);
+            forestNode newForestNode = new forestNode(parentWeight, parentTreeNode);
+            myForest.insert(newForestNode);
+            myForest.printElements();
+        }
+        System.out.println("Printing leaf nodes....");
+        myForest.printLeafNodes(myForest.returnMin().getRoot());
     }
 
 }
